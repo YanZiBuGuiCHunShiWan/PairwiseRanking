@@ -67,8 +67,9 @@ if __name__=="__main__":
     # # 保存 JSON 字符串到文件
     # with open('data/format_data/multi-cpr/ecom/rerank_data.json', 'w') as f:
     #     f.write(json_str)
-    rd_dataset = ReRankerDataset(rerank_datapath="data/rerank/rerank-qd.json",model_path=bert_model_path)
+    rd_dataset = ReRankerDataset(rerank_datapath="data/rerank/rerank-qd-dev.json",model_path=bert_model_path)
     dataloader = DataLoader(rd_dataset,batch_size=3,shuffle=False)
+    print("len dataset is :{}.".format(len(rd_dataset)))
     for (positive,negative,margin) in dataloader:
         print(positive.input_ids.shape)
         print(margin)
