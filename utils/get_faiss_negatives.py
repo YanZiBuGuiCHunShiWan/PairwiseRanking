@@ -75,30 +75,57 @@ class CustomTrainerDataset():
         print ("Finish reading corpus dict")
         return corpus_dict
     
-    def make_json(self,k):
+    def make_json_train(self,k):
         distances,indexes = self.ann_index.search(np.array(self.query_array_list),k)
         data_list = []
         for i,index_list in enumerate(indexes):
-            current_dict = {'query':self.query_dict[str(i+1)],"positive":self.corpus_dict[self.qrel_dict[str(i+1)]],"negative":[],"neg_dis":[]}
+            current_dict = {'query':self.query_dict[str(i+1)],
+                            "positive":self.corpus_dict[self.qrel_dict[str(i+1)]],
+                            "negative":[],
+                            "neg_dis":[]}
             for j,corpus_index in enumerate(index_list):
                 relavant_docs = self.corpus_dict[str(corpus_index+1)]
                 if relavant_docs!=current_dict['positive']:
-                    current_dict['negative'].append(relavant_docs)
-                    current_dict['neg_dis'].append(float(distances[i][j]))
+                        current_dict['negative'].append(relavant_docs)
+                        current_dict['neg_dis'].append(float(distances[i][j]))
             data_list.append(current_dict)
-        with open("data/rerank/rerank-qd.json","w") as f:
+        print(data_list[:2])
+        with open("data/rerank/rerank-qd-dev.json","w") as f:
             json.dump(data_list,f)
+            
+    def make_json_dev(self,k):
+        distances,indexes = self.ann_index.search(np.array(self.query_array_list),k)
+        data_list = []
+        for i,index_list in enumerate(indexes):
+            current_dict = {'query':self.query_dict[str(i+200000)],
+                            "positive":self.corpus_dict[self.qrel_dict[str(i+200000)]],
+                            "negative":[],
+                            "neg_dis":[]}
+            for j,corpus_index in enumerate(index_list):
+                relavant_docs = self.corpus_dict[str(corpus_index+1)]
+                current_dict['negative'].append(relavant_docs)
+                current_dict['neg_dis'].append(float(distances[i][j]))
+            data_list.append(current_dict)
+        print(data_list[:2])
+        with open("data/rerank/rerank-qd-dev.json","w") as f:
+            json.dump(data_list,f)
+    
     
     
 if __name__=="__main__":
     collection_path = "data/ecom/corpus.tsv"
     cmap = read_collections(collection_path)
 
-    query_path = "data/ecom/train.query.txt"
-    qrel_path = "data/ecom/qrels.train.tsv"
+    # query_path = "data/ecom/train.query.txt"
+    # qrel_path = "data/ecom/qrels.train.tsv"
+    query_path = "data/ecom/dev.query.txt"
+    qrel_path = "data/ecom/qrels.dev.tsv"
+    
     dataset = CustomTrainerDataset(ann_index="embedding/faiss.index",
                                    qrel_file=qrel_path,
                                    query_file=query_path,
                                    corpus_file=collection_path,
-                                   query_array_file="embedding/train_query_embedding")
-    dataset.make_json(50)
+                                   query_array_file="embedding/query_embedding")
+    print(list(dataset.qrel_dict.keys())[:20])
+    print(list(dataset.query_dict.keys())[:20])
+    dataset.make_json(50,mode="dev")
