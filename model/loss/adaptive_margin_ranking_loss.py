@@ -26,18 +26,27 @@ class AdaptiveMarginRankingLoss(nn.Module):
         loss = self.activation(x_negativce-x_positive+margin)
         return loss
         
-                
-def RankNetLoss(s_i,s_j):
-    """_summary_
 
-    Args:
-        s_i (torch.Tensor): similarity(query_i,doc_i^+)
-        s_j (torch.Tensor): similarity(query_i,doc_j^-)
+class RankNetLoss(nn.Module):
+    def __init__(self,sigma:torch.Tensor):
+        super().__init__()
+        self.sigma = sigma
         
-    s_ij = 1. because doc_i^+ is much more relavant to query_i
-    so the cost is $\log (sigmoid(s_i-s_j))$
-    we can implement it by BCE Loss.
-    """
-    diff = s_i-s_j #[Batch]
-    y_loss = -1*F.logsigmoid(s_i-s_j)
-    return y_loss.mean()
+    def forward(self,positive_logits,negative_logits):
+        """_summary_
+
+        Args:
+            s_i (torch.Tensor): similarity(query_i,doc_i^+)
+            s_j (torch.Tensor): similarity(query_i,doc_j^-)
+        
+        s_ij = 1. because doc_i^+ is much more relavant to query_i
+        so the cost is $\log (sigmoid(s_i-s_j))$
+        """
+        loss = -1*F.logsigmoid(self.sigma*(positive_logits-negative_logits))
+        return loss.mean()
+        
+        
+def rank_loss(p,n,sigma):
+    loss = -1*F.logsigmoid(sigma*(p-n))
+    return loss.mean()
+        
