@@ -1,3 +1,7 @@
+# 项目概述
+
+​	本项目主要研究排序学习中常见的文本排序策略，比如margin ranking loss(又称margin triplet loss)，Adaptive margin ranking loss, RankNet, Adaptive RankNet.
+
 $\text{Margin Ranking Loss}$
 
 
@@ -18,13 +22,17 @@ $\text{RankNet}$
 
 ​					              			$\begin{aligned}L=-{\bar{P_{ij}}}\log(P_{ij})-{(1-\bar{P_{ij}})}\log(1-P_{ij}) \end{aligned}$
 
-  	带入公式$(1.1)$则有：
+带入公式$(1.1)$​则有：
 
 ​									     $\begin{aligned}L&=-{\bar{P_{ij}}}\log(P_{ij})-{(1-\bar{P_{ij}})}\log(1-P_{ij}) \\ &=-\frac{1}{2}(1-S_{ij})\sigma(s_i-s_j)+\log(1+\exp(-\sigma(s_i-s_j))) \end{aligned}$
 
+```latex
+\begin{aligned}L&=-{\bar{P_{ij}}}\log(P_{ij})-{(1-\bar{P_{ij}})}\log(1-P_{ij}) \\ &=-\frac{1}{2}(1-S_{ij})\sigma(s_i-s_j)+\log(1+\exp(-\sigma(s_i-s_j))) \end{aligned}
+```
+
 ​	 如果我们强制另$S_{ij}=1$，则有：
 
-​										$\begin{aligned}L&=-\log(sigmoid(\sigma(s_i-s_j)))\end{aligned}$
+​										$\begin{aligned}L&=-\log(sigmoid(\sigma(s_i-s_j)))\end{aligned}$​
 
 ​	如下是一个简洁的实现，假设$query$和$doc_i$是相关的，和$doc_j$是没那么相关的。以文本检索的场景为例，$h_i=Encoder(query\oplus doc_i)\in \mathbb R^{1 \times 768},h_j=Encoder(query\oplus doc_j)\in \mathbb R^{1 \times 768}$：
 
